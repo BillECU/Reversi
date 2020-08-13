@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reversi game</title>
+</head>
+<body style="background-color:powderblue;">
+<h1>Play Reversi with AI</h1>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script>
+
+
+var div=document.createElement('div');
+var str='<table border=1 id="board">',a =true;
+for(var i=0;i<8;i++){
+	str+='<tr>'
+	for(var j=0;j<8;j++){
+		str+='<td width="20" height= "20"';
+		if(a && j%2==0 || !a && j%2==1)
+		str+='<td class="td02"> </td>';
+		else
+		str+='<td class="td01"> </td>';
+	}
+	str+='</tr>';
+	a=!a;
+}
+str+='</table>';
+
+div.innerHTML=str;
+document.body.appendChild(div);
+
+var x = document.getElementById("board").rows[3].cells;
+x[3].innerHTML = "<img src='b.png' alt='b'/>";
+x[3].body = "b";
+x = document.getElementById("board").rows[4].cells;
+x[4].innerHTML = "<img src='b.png' alt='b'/>";
+x[4].body = "b";
+x = document.getElementById("board").rows[3].cells;
+x[4].innerHTML = "<img src='w.png' alt='w'/>";
+x[4].body = "w";
+x = document.getElementById("board").rows[4].cells;
+x[3].innerHTML = "<img src='w.png' alt='w'/>";
+x[3].body = "w";
+//console.log(x[3].body);
+//console.log(x[3].body === y[4].body)
+
+
+//black is true, white is false
+var people = true;
+var l = available_moves(people,document.getElementById('board'));
+alert("Black's turn");
+if(l.length>0){
+    $(document).ready(function(){
+        check(people);
+    $('td').on( 'click', function () {
+        //console.log($(this).closest("tr").index() + " " + $(this).closest("td").index());
+        var x = $(this).closest("tr").index();
+        var y = $(this).closest("td").index();
+        var z = document.getElementById("board").rows[x].cells;
+        const game_board = document.getElementById('board');
+        if (z[y].body === undefined){
+            if(legal_move(x,y,game_board,people) == true){
+                if (people === false){
+                    console.log(people)
+                    people = true;
+                    white(x,y,game_board);
+                    flip(x,y,game_board);
+                    setTimeout(function(){},1000);
+                    alert("Black's turn");
+                    
+                }
+                else{
+                    console.log(people)
+                    people = false;
+                    black(x,y,game_board);
+                    flip(x,y,game_board);
+                    setTimeout(function(){},1000);
+                    alert("White's turn");
+                }
+            }                
+        }
+    });
+});
+}
+
+function check(people){
+    while(available_moves(people,document.getElementById('board')).length == 0){
+        if(people == true)
+            alert("Black pass");
+        else
+            alert("White pass")
+        people = !people;
+        if(available_moves(people,document.getElementById('board')).lengh == 0){
+            var end = result(document.getElementById('board'));
+            if(end == 1)
+                alert("Black wins");
+            else if(end == -1)
+                alert("White wins");
+            else
+                alert("Tie");
+        }
+    }
+}
+
+
+//console.log(random_playout(document.getElementById('board')));
+
+//place white 
+function white(x,y,board){
+    var z = board.rows[x].cells;
+    z[y].innerHTML = "<img src='w.png' alt='w'/>";
+    z[y].body = "w";                
+}
+
+//place black
+function black(x,y,board){
+    var z = board.rows[x].cells;
+    z[y].innerHTML = "<img src='b.png' alt='b'/>";
+    z[y].body = "b";
+}
+
+//legal moves
+function legal_move(x,y,board,people){
+    var z = board.rows[x].cells;
+    if(people == true){
+        //check different directions for black
+        z[y].body = "b";
+        //left-top
+        var c =0;
+        j = y-1;
+        for(var i=x-1;i>=0;i--){
+            if(j>=0){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }     
+                }
+                j--;
+            }
+        }
+
+        //right-bottom
+        c =0;
+        j = y+1;
+        for(var i=x+1;i<=7;i++){
+            if(j<=7){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j++;    
+            }
+        }
+
+        //right-top
+        c =0;
+        j = y+1;
+        for(var i=x-1;i>=0;i--){
+            if(j<=7){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j++;   
+            }
+        }
+    
+        //left-bottom
+        c =0;
+        j = y-1;
+        for(var i=x+1;i<=7;i++){
+            if(j>=0){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j--;     
+            }
+        }
+        //left
+        c = 0;
+        var temp = board.rows[x].cells;
+        for(var j=y-1;j>=0;j--){
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+        //right
+        c = 0;
+        for(var j=y+1;j<=7;j++){
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+
+        //top
+        c = 0;
+        for(var i=x-1;i>=0;i--){
+            var temp = board.rows[i].cells;
+            if(temp[y].body == undefined)
+                break;
+            if(c==0){
+                if(temp[y].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[y].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+
+        //bottom
+        c = 0;
+        for(var i=x+1;i<=7;i++){
+            var temp = board.rows[i].cells;
+            if(temp[y].body == undefined)
+                break;
+            if(c==0){
+                if(temp[y].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[y].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+        z[y].body = undefined; 
+        return false;
+    }
+    else{
+        //check different directions for white
+        z[y].body = "w";
+        //left-top
+        var c =0;
+        j = y-1;
+        for(var i=x-1;i>=0;i--){
+            if(j>=0){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }     
+                }
+                j--;
+            }
+        }
+
+        //right-bottom
+        c =0;
+        j = y+1;
+        for(var i=x+1;i<=7;i++){
+            if(j<=7){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j++;    
+            }
+        }
+
+        //right-top
+        c =0;
+        j = y+1;
+        for(var i=x-1;i>=0;i--){
+            if(j<=7){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j++;   
+            }
+        }
+    
+        //left-bottom
+        c =0;
+        j = y-1;
+        for(var i=x+1;i<=7;i++){
+            if(j>=0){
+                var temp = board.rows[i].cells;
+                if(temp[j].body == undefined)
+                    break;
+                if(c==0){
+                    if(temp[j].body == z[y].body)
+                        break;
+                    else
+                        c++;
+                }
+                else{
+                    if(temp[j].body != z[y].body)
+                        c++;
+                    else{
+                        return true;
+                    }
+                        
+                }
+                j--;     
+            }
+        }
+        //left
+        c = 0;
+        var temp = board.rows[x].cells;
+        for(var j=y-1;j>=0;j--){
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+        //right
+        c = 0;
+        for(var j=y+1;j<=7;j++){
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+
+        //top
+        c = 0;
+        for(var i=x-1;i>=0;i--){
+            var temp = board.rows[i].cells;
+            if(temp[y].body == undefined)
+                break;
+            if(c==0){
+                if(temp[y].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[y].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+
+        //bottom
+        c = 0;
+        for(var i=x+1;i<=7;i++){
+            var temp = board.rows[i].cells;
+            if(temp[y].body == undefined)
+                break;
+            if(c==0){
+                if(temp[y].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[y].body != z[y].body)
+                    c++;
+                else
+                    return true;
+            }
+        }
+        z[y].body = undefined; 
+        return false;
+    }
+}
+
+function available_moves(people,board){
+    var b = board.cloneNode(true);
+    var moves = [];
+    for(var i =0;i<=7;i++){
+        for(var j=0;j<=7;j++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+            temp[j].body = n[j].body;
+        }
+    }
+
+    for(var i =0;i<=7;i++){
+        for(var j=0;j<=7;j++){
+            var temp = b.rows[i].cells;
+            if(temp[j].body == undefined){
+                if(legal_move(i,j,b,people) == true){
+                var move = i*8+j;
+                moves.push(move);
+                }
+            }
+            
+        }
+    }
+    console.log(moves);
+    return moves;
+}
+
+function result(board){
+    var b = board.cloneNode(true);
+    var black =0;
+    var white =0;
+    for(var i =0;i<=7;i++){
+        for(var j=0;j<=7;j++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+            temp[j].body = n[j].body;
+            if(tem[j].body ='w')
+                white++;
+            else if(tem[j].body ='b')
+                black++;
+        }
+    }
+    if(black>white)
+        return 1;
+    else if(black<white)
+        return -1;
+    else
+        return 0; 
+}
+
+function flip(x,y,board){
+    var z = board.rows[x].cells;
+    //check different directions for black
+    //left-top
+    var c =0;
+    j = y-1;
+    for(var i=x-1;i>=0;i--){
+        if(j>=0){
+            var temp = board.rows[i].cells;
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else{
+                    c =c*(-1);
+                }     
+            }
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i+1,j+1,board);
+                    i++;
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i+1,j+1,board);
+                    i++;
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+        }
+        if(c==0)
+            break;
+        j--;
+    }
+
+    //right-bottom
+    c =0;
+    j = y+1;
+    for(var i=x+1;i<=7;i++){
+        if(j<=7){
+            var temp = board.rows[i].cells;
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else{
+                    c =c*(-1);
+                }
+                    
+            }    
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i-1,j-1,board);
+                    i--;
+                    j--;
+                    c++;
+                    console.log(j);
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i-1,j-1,board);
+                    i--;
+                    j--;
+                    c++;
+                }
+                break; 
+            }
+        }
+        if(c==0)
+            break;
+        j++;
+    }
+
+    //right-top
+    c =0;
+    j = y+1;
+    for(var i=x-1;i>=0;i--){
+        if(j<=7){
+            var temp = board.rows[i].cells;
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else{
+                    c =c*(-1);
+                }
+                    
+            }  
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i+1,j-1,board);
+                    i++;
+                    j--;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i+1,j-1,board);
+                    i++;
+                    j--;
+                    c++;
+                }
+                break; 
+            }
+        }
+        if(c==0)
+            break;
+        j++; 
+    }
+
+    //left-bottom
+    c =0;
+    j = y-1;
+    for(var i=x+1;i<=7;i++){
+        if(j>=0){
+            var temp = board.rows[i].cells;
+            if(temp[j].body == undefined)
+                break;
+            if(c==0){
+                if(temp[j].body == z[y].body)
+                    break;
+                else
+                    c++;
+            }
+            else{
+                if(temp[j].body != z[y].body)
+                    c++;
+                else{
+                    c =c*(-1);
+                }
+                    
+            }     
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i-1,j+1,board);
+                    i--;
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i-1,j+1,board);
+                    i--;
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+        }
+        if(c==0)
+            break;
+        j--;
+    }
+    //left
+    c = 0;
+    var temp = board.rows[x].cells;
+    for(var j=y-1;j>=0;j--){
+        if(temp[j].body == undefined)
+            break;
+        if(c==0){
+            if(temp[j].body == z[y].body)
+                break;
+            else
+                c++;
+        }
+        else if(c>0){
+            if(temp[j].body != z[y].body)
+                c++;
+            else
+                c =c*(-1);
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(x,j+1,board);
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(x,j+1,board);
+                    j++;
+                    c++;
+                }
+                break; 
+            }
+        }
+    }
+    //right
+    c = 0;
+    for(var j=y+1;j<=7;j++){
+        if(c==0){
+            if(temp[j].body == undefined)
+                break;
+            if(temp[j].body == z[y].body)
+                break;
+            else
+                c++;
+        }
+        else if(c>0){
+            if(temp[j].body != z[y].body)
+                c++;
+            else
+                c =c*(-1);
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(x,j-1,board);
+                    j--;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(x,j-1,board);
+                    j--;
+                    c++;
+                }
+                break; 
+            }
+        }
+    }
+
+    //top
+    c = 0;
+    for(var i=x-1;i>=0;i--){
+        var temp = board.rows[i].cells;
+        if(temp[y].body == undefined)
+                break;
+        if(c==0){
+            if(temp[y].body == z[y].body)
+                break;
+            else
+                c++;
+        }
+        else if(c>0){
+            if(temp[y].body != z[y].body)
+                c++;
+            else
+                c =c*(-1);
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i+1,y,board);
+                    i++;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i+1,y,board);
+                    i++;
+                    c++;
+                }
+                break; 
+            }
+        }
+    }
+    //bottom
+    c = 0;
+    for(var i=x+1;i<=7;i++){
+        var temp = board.rows[i].cells;
+        if(temp[y].body == undefined)
+                break;
+        if(c==0){
+            if(temp[y].body == z[y].body)
+                break;
+            else
+                c++;
+        }
+        else if(c>0){
+            if(temp[y].body != z[y].body)
+                c++;
+            else
+                c =c*(-1);
+        }
+        if(c<0){
+            if(z[y].body =='b'){
+                while(c<0){
+                    black(i-1,y,board);
+                    i--;
+                    c++;
+                }
+                break; 
+            }
+            else{
+                while(c<0){
+                    white(i-1,y,board);
+                    i--;
+                    c++;
+                }
+                break; 
+            }
+        }
+    }
+}
+
+function random_playout(people,board,play_times = 100){
+    count = [0,0,0];
+    while(play_times>0){
+        var b = board.cloneNode(true);
+        for(var i =0;i<=7;i++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+            for(var j=0;j<=7;j++){
+                temp[j].body = n[j].body;
+            }
+        }
+        play_times --;
+        while(available_moves(people,b).length>0 || available_moves(!people,b).length>0){
+            var moves =available_moves(people,board);
+            if(moves.length>0){
+                var move_number = Math.floor(Math.random() * moves.length);
+                var move = moves[move_number]
+                var move_x = Math.ceil(move/8);
+                var move_y = move%8;
+                delete moves[move_number];   
+                if(people ==true){
+                    black(move_x,move_y,b);
+                    flip(move_x,move_y,b);
+                    people = !people;
+                }
+                else
+                {
+                    white(move_x,move_y,b);
+                    flip(move_x,move_y,b);
+                    people = !people;
+                }
+                if(available_moves(people,board).length == 0 && available_moves(!people,board).length == 0){
+                    var end = result(b);
+                    if(end == 1)
+                        count[0]++;
+                    else if(end == -1)
+                        count[2]++;
+                    else
+                        count[1]++
+                }
+            }
+            else
+                people = !people;
+        }
+    }
+    return count;
+}
+
+function pureMCT_move(people,board){
+    var values = [];
+    var moves = available_moves(people,board);
+    var l =moves.length;
+    for(var i=0;i++;i<l){
+        var b = board.cloneNode(true);
+        for(var i =0;i<=7;i++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+                for(var j=0;j<=7;j++){
+                    temp[j].body = n[j].body;
+                }
+        }
+        var move = moves[i]
+        var move_x = Math.ceil(move/8);
+        var move_y = move%8;
+        var stat;  
+        if(people ==true){
+            black(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,false);
+            var good = stat[0]*2+stat[1];
+            values.push(good);
+        }
+        else
+        {
+            white(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,true);
+            var good = stat[2]*2+stat[1];
+            values.push(good);
+        }
+    }
+    var best = Math.max(values);
+    var best_move;
+    for(var i=0;i++;i<l){
+        if(values[i] == best)
+            best_move = i;
+    }
+    best_move_x = Math.ceil(moves[best_move]/8);
+    best_move_y = moves[best_move]%8;
+    var m = [best_move_x,best_move_y];
+    return m;
+}
+
+function heuristicMCT_move(people,board){
+    var values = [];
+    var moves = available_moves(people,board);
+    var l =moves.length;
+    for(var i=0;i++;i<l){
+        var b = board.cloneNode(true);
+        for(var i =0;i<=7;i++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+                for(var j=0;j<=7;j++){
+                    temp[j].body = n[j].body;
+                }
+        }
+        var move = moves[i]
+        var move_x = Math.ceil(move/8);
+        var move_y = move%8;
+        var stat;  
+        if(people ==true){
+            black(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,false);
+            var good = stat[0]*2+stat[1];
+            values.push(good);
+        }
+        else
+        {
+            white(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,true);
+            var good = stat[2]*2+stat[1];
+            values.push(good);
+        }
+    }
+    var worst = Math.min(values);
+    var worst_move;
+    for(var i=0;i++;i<l){
+        if(values[i] == worst)
+            worst_move = i;
+    }
+    delete moves[worst_move];
+
+    var l =moves.length;
+    for(var i=0;i++;i<l){
+        var b = board.cloneNode(true);
+        for(var i =0;i<=7;i++){
+            var temp = b.rows[i].cells;
+            var n = board.rows[i].cells;
+                for(var j=0;j<=7;j++){
+                    temp[j].body = n[j].body;
+                }
+        }
+        var move = moves[i]
+        var move_x = Math.ceil(move/8);
+        var move_y = move%8;
+        var stat;  
+        if(people ==true){
+            black(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,false);
+            var good = stat[0]*1.5+stat[1];
+            values.push(good);
+        }
+        else
+        {
+            white(move_x,move_y,b);
+            flip(move_x,move_y,b);
+            stat = random_playout(b,true);
+            var good = stat[2]*1.5+stat[1];
+            values.push(good);
+        }
+    }
+
+    var best = Math.max(values);
+    var best_move;
+    for(var i=0;i++;i<l){
+        if(values[i] == best)
+            best_move = i;
+    }
+    best_move_x = Math.ceil(moves[best_move]/8);
+    best_move_y = moves[best_move]%8;
+    var m = [best_move_x,best_move_y];
+    return m;
+}
+
+
+
+</script>
+
+</body>
+<style>
+
+h1 {
+width:300px;
+margin: auto;
+}
+
+
+table {
+margin: 20px auto;
+border: 10px double rgb(31, 51, 59);
+box-shadow: 5px 5px 10px #333; 
+}
+
+td {
+width: 50px;
+height: 50px;
+background-color: #fff;
+}
+
+.td01 {
+background-color: #fff;
+}
+
+.td02 {
+background-color: #A9A9;
+}
+
+</style>
+</html>
