@@ -1,6 +1,6 @@
 # Reversi
 
-This is my first time using css and javascript.
+Implemented in Html, CSS, and JS
 
 
 This game is a two people game. In order to play with wither AI, the second or the first hand needs 
